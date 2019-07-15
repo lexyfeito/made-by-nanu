@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:made_by_nanu/models/item.dart';
+import 'package:made_by_nanu/models/cart.dart';
 import 'package:made_by_nanu/models/shoe.dart';
 
 import '../db_helper.dart';
@@ -12,8 +12,8 @@ class GetItems extends CartEvent {
 
 }
 class AddItem extends CartEvent {
-  ItemModel item;
-  AddItem(this.item);
+  CartModel cart;
+  AddItem(this.cart);
 }
 class RemoveItem extends CartEvent {
   int index;
@@ -27,12 +27,12 @@ class RemoveById extends CartEvent {
 class CartBloc {
   DbHelper dbHelper;
   ItemBloc itemBloc = ItemBloc();
-  List<ItemModel> _cart = [];
+  List<CartModel> _cart = [];
 
-  List<ItemModel> get cart => _cart;
+  List<CartModel> get cart => _cart;
 
-  final StreamController _ctrl = StreamController<List<ItemModel>>.broadcast();
-  Stream<List<ItemModel>> get stream => _ctrl.stream;
+  final StreamController _ctrl = StreamController<List<CartModel>>.broadcast();
+  Stream<List<CartModel>> get stream => _ctrl.stream;
 
   final _eventController = StreamController<CartEvent>.broadcast();
   Sink<CartEvent> get elementEventSink => _eventController.sink;
@@ -56,20 +56,25 @@ class CartBloc {
             }
           }
 
-          return item;
+          return CartModel(i['id'], item);
         }).toList();
-        print(_cart);
       }
     } else if (event is AddItem) {
       var db = await dbHelper.database;
-      var itemJson = event.item.toCartJson();
+      var itemJson = event.cart.toJson();
       db.insert('Cart', itemJson);
-      _cart.add(event.item);
+      _cart.add(event.cart);
     } else if (event is RemoveItem) {
       _cart.removeAt(event.index);
     } else if (event is RemoveById) {
-      int index = _cart.indexWhere((i) => i.id == event.id);
-      _cart.removeAt(index);
+      var db = await dbHelper.database;
+      try {
+        await db.delete('Cart', where: 'id = ?', whereArgs: [event.id]);
+        int index = _cart.indexWhere((i) => i.id == event.id);
+        _cart.removeAt(index);
+      } catch (e) {
+        print(e);
+      }
     }
 
     _ctrl.sink.add(_cart);

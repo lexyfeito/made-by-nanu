@@ -40,12 +40,15 @@ class _SettingsPage extends State<SettingsPage> {
                   ),
                 ],
               ),
-              TextFormField(
-                decoration: InputDecoration(
-                    labelText: "Street"
+              Container(
+                margin: EdgeInsets.only(top: 30),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                      labelText: "Street"
+                  ),
+                  controller: _streetController,
+                  validator: _formFieldValidator,
                 ),
-                controller: _streetController,
-                validator: _formFieldValidator,
               ),
               Row(
                 children: <Widget>[

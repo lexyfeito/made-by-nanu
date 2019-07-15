@@ -8,10 +8,11 @@ class Item extends StatefulWidget {
 
   ItemModel item;
   bool showRemoveIcon;
-  Item(this.item, {this.showRemoveIcon = false});
+  CartBloc cartBloc;
+  Item(this.item, {this.cartBloc, this.showRemoveIcon = false});
 
   @override
-  State<StatefulWidget> createState() => _Item(item, showRemoveIcon);
+  State<StatefulWidget> createState() => _Item(item, cartBloc, showRemoveIcon);
 }
 
 class _Item extends State<Item> {
@@ -19,8 +20,10 @@ class _Item extends State<Item> {
   bool showRemoveIcon;
   ItemModel item;
   ItemBloc itemBloc = ItemBloc();
-  CartBloc cartBloc = CartBloc();
-  _Item(this.item, this.showRemoveIcon);
+  CartBloc cartBloc;
+  _Item(this.item, this.cartBloc, this.showRemoveIcon) {
+    if (cartBloc == null) cartBloc = CartBloc();
+  }
 
   @override
   void initState() {

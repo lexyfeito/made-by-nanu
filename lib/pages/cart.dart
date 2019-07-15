@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:made_by_nanu/bloc/cart.dart';
 import 'package:made_by_nanu/components/item.dart';
+import 'package:made_by_nanu/models/cart.dart';
 import 'package:made_by_nanu/models/item.dart';
 import 'package:made_by_nanu/models/order.dart';
 import 'package:made_by_nanu/models/order_item.dart';
@@ -48,19 +49,19 @@ class _CartPage extends State<CartPage> {
       appBar: AppBar(),
       body: StreamBuilder(
         stream: cartBloc.stream,
-        builder: (context, AsyncSnapshot<List<ItemModel>> snapshot) {
+        builder: (context, AsyncSnapshot<List<CartModel>> snapshot) {
           if (snapshot.data == null) return Center(child: CircularProgressIndicator(),);
-          var items = snapshot.data;
-          if (items == null || items.length == 0) return Center(child: Icon(Icons.remove_shopping_cart));
+          var cartList = snapshot.data;
+          if (cartList == null || cartList.length == 0) return Center(child: Icon(Icons.remove_shopping_cart, color: Colors.grey[400],));
           return ListView.builder(
-            itemCount: items.length,
+            itemCount: cartList.length,
             itemBuilder: (context, index) {
-              return Item(items[index], showRemoveIcon: true,);
+              return Item(cartList[index].item, cartBloc: cartBloc, showRemoveIcon: true,);
             },
           );
         },
       ),
-      bottomNavigationBar: BottomAppBar(
+      bottomNavigationBar: cartBloc.cart.isEmpty ? null : BottomAppBar(
         child: FlatButton(
           child: Text('Submit Order'),
           textTheme: ButtonTextTheme.primary,
@@ -84,11 +85,11 @@ class _CartPage extends State<CartPage> {
                         var db = await dbHelper.database;
                         var order = OrderModel(DateTime.now());
                         int id = await db.insert('Orders', order.toJson());
-                        cartBloc.cart.forEach((ItemModel i) async {
-                          if (i is ShoeModel) {
-                            var orderItem = OrderItemModel(id, i.id, i.size, i.color);
+                        cartBloc.cart.forEach((CartModel i) async {
+                          if (i.item is ShoeModel) {
+                            ShoeModel shoe = i.item as ShoeModel;
+                            var orderItem = OrderItemModel(id, i.item.id, shoe.size, shoe.color);
                             var orderItemId = await db.insert('Order_Item', orderItem.toJson());
-                            print(orderItemId);
                           }
                         });
                         Navigator.of(context).pop(true);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:made_by_nanu/bloc/item.dart';
+import 'package:made_by_nanu/models/cart.dart';
 import 'package:made_by_nanu/models/item.dart';
 import 'package:badges/badges.dart';
 import 'package:made_by_nanu/bloc/cart.dart';
@@ -39,7 +40,7 @@ class _HomePage extends State<HomePage> {
         actions: [
           StreamBuilder(
             stream: cartBloc.stream,
-            builder: (BuildContext context, AsyncSnapshot<List<ItemModel>> snapshot) {
+            builder: (BuildContext context, AsyncSnapshot<List<CartModel>> snapshot) {
               return IconButton(
                 icon: Badge(
                   child: Icon(Icons.shopping_cart),
@@ -55,20 +56,29 @@ class _HomePage extends State<HomePage> {
       drawer: Drawer(
         child: ListView(
           children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.grey[200]
+              ),
+              child: Text('Made By Nanu', style: TextStyle(fontSize: 22, color: Colors.red),),
+            ),
             ListTile(
               leading: Icon(Icons.shopping_cart),
               title: Text("Orders"),
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => OrdersPage())),
+              trailing: Icon(Icons.chevron_right, color: Colors.red,),
             ),
             ListTile(
               leading: Icon(Icons.person),
               title: Text("About"),
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => AboutPage())),
+              trailing: Icon(Icons.chevron_right, color: Colors.red,),
             ),
             ListTile(
               leading: Icon(Icons.settings),
               title: Text("Settings"),
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsPage())),
+              trailing: Icon(Icons.chevron_right, color: Colors.red,),
             )
           ],
         ),
@@ -139,7 +149,7 @@ class _HomePage extends State<HomePage> {
                                 );
                               }
                           );
-                          cartBloc.elementEventSink.add(AddItem(newItem));
+                          cartBloc.elementEventSink.add(AddItem(CartModel(0, newItem)));
                         }
                       },
                       textTheme: ButtonTextTheme.primary,
